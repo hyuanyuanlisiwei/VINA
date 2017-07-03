@@ -15,7 +15,7 @@
             </el-form-item>
             <el-form-item label="营业执照" prop="businessLicense">
               <img :src="BasicInfo.businessLicense" class="img-rounded"/>
-              <el-upload class="upload-demo" action="http://192.168.1.123:8080/upload/uploadFile" :data="{type:1}" name="myFile"  :on-success="uploadSuccess" ><el-button type="primary" icon="upload">上传图片</el-button></el-upload>
+              <el-upload class="upload-demo" action="http://192.168.1.101:8080/upload/uploadFile" :data="{type:1}" name="myFile"  :on-success="uploadSuccess" ><el-button type="primary" icon="upload">上传图片</el-button></el-upload>
               <el-input v-model="BasicInfo.businessLicense" style="display:none"></el-input>
             </el-form-item>
             <el-form-item label="公司地址" prop="address">

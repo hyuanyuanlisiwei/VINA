@@ -2,53 +2,48 @@
  * Created by hyylsw on 2017/6/14.
  */
 import service from "@/api/service";
-import Mock from '@/mock/login'
+// import Mock from '@/mock/login'
 
 export function login(params) {
     return service({
-        method:"POST",
+        method:"post",
         url:"/login/login",
-        data:params
+        params:params
     });
 }
 export function updateUserInfo(params) {
   return service({
     method:'POST',
     url:'/advertiser/update',
-    data:params
+    params:params
   });
 }
 export function getUserInfo(params) {
   return service({
     method:'POST',
     url:'/advertiser/get',
-    data:params
+    params:params
   });
 }
 export function recordsList(params) {
   return service({
     method:'POST',
     url:'/advertiser/getAdvertiserChargeList',
-    data:params
+    params:params
   });
 }
 export function quotaByDay(params) {
   return service({
     method:'POST',
     url:'/plan/sumQuotaByDay',
-    data:params
+    params:params
   });
 }
 export function getBasicInfo(params) {
   return service({
     method:'POST',
     url:'/advertiser/getCostInfo',
-    data:params
+    params:params
   });
 }
-export function getAreas() {
-  return service({
-    method:'POST',
-    url:'/adDic/getList?groupId=1001'
-  });
-}
+

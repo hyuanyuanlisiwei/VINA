@@ -1,7 +1,7 @@
 /**
  * Created by hyylsw on 2017/6/15.
  */
-import PlanMock from '@/mock/plan'
+// import PlanMock from '@/mock/plan'
 import service from './service'
 
 export function getCostType() {
@@ -69,38 +69,39 @@ export function getAreas() {
     });
 }
 export function planList(params){
+   console.log('mock planList');
     return service({
         method:"POST",
         url:"/plan/getList",
-        data:params
+        params:params
     });
 }
 export function planSave(params) {
     return service({
         method:"POST",
         url:"/plan/save",
-        data:params
+        params:params
     });
 }
 export function planUpdate(params) {
   return service({
     method:"POST",
     url:"/plan/update",
-    data:params
+    params:params
   });
 }
 export function planGet(params) {
   return service({
     method:"POST",
     url:"/plan/get",
-    data:params
+    params:params
   });
 }
 export function entityDelete(params) {
   return service({
     method:"POST",
     url:"/entity/delete",
-    data:params
+    params:params
 });
 }
 
@@ -108,14 +109,14 @@ export function entitySave(params) {
   return service({
     method:"POST",
     url:"/entity/save",
-    data:params
+    params:params
   });
 }
 
 export function planQuotaByDay(params) {
   return service({
     method:"POST",
-    data:params,
+    params:params,
     url:"/plan/quotaByDay"
   });
 }

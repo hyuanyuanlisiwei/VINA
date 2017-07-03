@@ -3,6 +3,7 @@
  */
 import Mock from 'mockjs'
 Mock.mock(/\/login\/login/,function (options) {
+   console.log('mock /login/login');
     return {
         code:"A000000",
         data:{

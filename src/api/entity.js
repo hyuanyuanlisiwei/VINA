@@ -1,7 +1,7 @@
 /**
  * Created by hyylsw on 2017/6/28.
  */
-import EntityMock from '@/mock/entity'
+// import EntityMock from '@/mock/entity'
 import service from './service'
 
 export function getEntityTypes() {
@@ -13,7 +13,7 @@ export function getEntityTypes() {
 export function entitySearch(params) {
   return service({
     method:"POST",
-    data:params,
+    params:params,
     url:"/entity/getList"
   });
 }
@@ -21,20 +21,20 @@ export function entityUpdate(params) {
   return service({
     method:"POST",
     url:"/entity/update",
-    data:params
+    params:params
   });
 }
 export function entityPreview(params) {
   return service({
     method:"POST",
     url:"/entity/get",
-    data:params
+    params:params
   });
 }
 export function entityQuotaByDay(params) {
   return service({
     method:"POST",
-    data:params,
+    params:params,
     url:"/entity/quotaByDay"
   });
 }

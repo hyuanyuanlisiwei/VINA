@@ -29,17 +29,12 @@
                     }]
                 },
                 LoginModel:{
-                    name:"huyuanyuan",
-                    password:'123123123'
+                    name:"vina",
+                    password:'12345'
                 }
             }
         },
         mounted(){
-           LoginCtr.getAreas().then(res=>{
-               console.log(res);
-           }).catch(err=>{});
-
-
 
         },
         methods:{
@@ -50,6 +45,8 @@
                    }else{
                         LoginCtr.login(this.LoginModel)
                             .then(res=>{
+                                console.log("登录结果:");
+                                console.log(res);
                                 let ret=res.data;
                                 if("A000000"==ret.code){
                                     //保存登录成功后该用户的信息;

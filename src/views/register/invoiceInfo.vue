@@ -5,7 +5,7 @@
           <el-form label-width="120px" :model="InvoiceInfo" :ref="form">
             <h1>开票信息</h1>
             <el-form-item label="开票公司名称" prop="invoiceCompany">
-              <el-input v-model="InvoiceInfo.name"  :disabled="isDisabled"></el-input>
+              <el-input v-model="InvoiceInfo.invoiceCompany"  :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="纳税人识别号" prop="invoiceTaxpayer">
               <el-input v-model="InvoiceInfo.invoiceTaxpayer" type="number"  :disabled="isDisabled"></el-input>
@@ -20,7 +20,7 @@
               <el-input v-model="InvoiceInfo.invoiceType"  :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="发票项目" prop="invoiceProject">
-              <el-input v-model="InvoiceInfo.email" type="email"  :disabled="isDisabled"></el-input>
+              <el-input v-model="InvoiceInfo.invoiceProject" type="email"  :disabled="isDisabled"></el-input>
             </el-form-item>
           </el-form>
         </el-col>

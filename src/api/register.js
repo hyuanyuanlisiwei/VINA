@@ -6,7 +6,7 @@ import service from './service'
 export function register(params) {
   return service({
     method:"POST",
-    data:params,
+    params:params,
     url:"/advertiser/register"
   });
 }
