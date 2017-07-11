@@ -13,6 +13,7 @@
                    </el-form-item>
                    <el-form-item label="时间">
                        <el-date-picker
+                               size="small"
                                @change="changeDateRange"
                                format="yyyy-MM-dd"
                                v-model="PlanModel.dateRange"
@@ -92,7 +93,7 @@ export default{
                 costType:'',
                 sDate:'',
                 eDate:'',
-                dateRange:''
+                dateRange:[],
             },
             pickerOptions:{
                 shortcuts: [{
@@ -132,25 +133,38 @@ export default{
             //付费类型
             costTypes:[],
             //表格数据
-            list:[],
+            list:[]
         }
     },
     mounted(){
+        this.initPlanModel();
         this.getCostTypes();
         this.planSearch();
-
     },
     methods:{
+        initPlanModel(){
+          let end = new Date();
+          let start = new Date();
+          start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+          this.PlanModel.dateRange=[start,end];
+          this.PlanModel.sDate=this.getDateStr(start);
+          this.PlanModel.eDate=this.getDateStr(end);
+        },
+        getDateStr(date){
+          let y=date.getFullYear();
+          let m=(date.getMonth()+1)<10?'0'+(date.getMonth+1):(date.getMonth()+1);
+          let d=date.getDate()<10?'0'+date.getDate():date.getDate();
+          return y+'-'+m+'-'+d;
+        },
         getCostTypes(){
             this.costTypes=this.$store.getters.getCostTypes;
             if(this.costTypes && this.costTypes.length>0){
                return;
             }
             PlanCtr.getCostType().then(res=>{
-                let ret=res.data;
-                if('A000000'==ret.code){
-                    this.costTypes=ret.data;
-                    this.$store.commit("saveCostTypes",ret.data);
+                if('A000000'==res.code){
+                    this.costTypes=res.data;
+                    this.$store.commit("saveCostTypes",res.data);
                 }
             }).catch(error=>{});
         },
@@ -164,9 +178,19 @@ export default{
             if("A000000"==ret.code){
                 //计算转化率,转化成本
                 for(let item of ret.data.data){
-                  item['rate']=((item['active']/item['clk'])*100).toFixed(2)+'%';
-                  item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
-                  item['benefit']=(item['cost']/item['active']).toFixed(2);
+                  //显示处理
+                  item['rate']='';
+                  item['clkRate']='';
+                  item['benefit']='';
+                  if(item['clk'] && item['active']){
+                    item['rate']=((item['active']/item['clk'])*100).toFixed(2)+'%';
+                  }
+                  if(item['imp'] && item['clk']){
+                    item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
+                  }
+                  if(item['active'] && item['cost']){
+                    item['benefit']=(item['cost']/item['active']).toFixed(2);
+                  }
                   item['runState']=item['runState']==1?true:false;
                 }
                 this.list=ret.data.data;
@@ -175,7 +199,7 @@ export default{
         },
         changeDateRange(dateRange){
             this.PlanModel.sDate=dateRange.substr(0,10);
-            this.PlanModel.eDate=dateRange.substr(13);
+            this.PlanModel.eDate=dateRange.substr(11);
         },
         success(){
             this.$message({
@@ -194,7 +218,7 @@ export default{
             });
         },
         changeRunState(row){
-            let params={id:row.id,runState:row.runState?1:0};
+            let params={id:row.id,runState:row.runState?0:1};
             PlanCtr.planUpdate(params).then(res=>{
                 let ret=res.data;
                 if('A000000'==ret.code){

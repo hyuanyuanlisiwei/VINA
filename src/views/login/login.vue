@@ -13,6 +13,7 @@
                 <el-button  @click="register">注册</el-button>
             </el-form-item>
         </el-form>
+
     </div>
 </template>
 <script>
@@ -30,7 +31,7 @@
                 },
                 LoginModel:{
                     name:"vina",
-                    password:'12345'
+                    password:'123456'
                 }
             }
         },
@@ -45,13 +46,16 @@
                    }else{
                         LoginCtr.login(this.LoginModel)
                             .then(res=>{
-                                console.log("登录结果:");
-                                console.log(res);
                                 let ret=res.data;
                                 if("A000000"==ret.code){
                                     //保存登录成功后该用户的信息;
                                     this.$store.commit("saveUserInfo",ret.data);
-                                    this.$router.push({path:'index'});
+                                    //保存token
+                                    window.localStorage.setItem('token',ret.data.token);
+                                    window.localStorage.setItem('type',ret.data.type);
+                                    this.$router.push({path:'/index'});
+                                }else{
+                                  this.$message.error(ret.message);
                                 }
                             }).catch(error=>{});
                    }

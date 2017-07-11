@@ -3,10 +3,11 @@
       <basic-comp></basic-comp>
       <el-row>
         <el-col :span="24">
-          <el-radio-group v-model="IndexModel.day" @change="changeDay">
-            <el-radio :label="7">最近7天</el-radio>
-            <el-radio :label="15">最近15天</el-radio>
-            <el-radio :label="30">最近30天</el-radio>
+          <el-radio-group v-model="IndexModel.date" @change="quotaByDay">
+            <el-radio label="currentWeek">本周</el-radio>
+            <el-radio label="lastWeek">上周</el-radio>
+            <el-radio label="currentMonth">本月</el-radio>
+            <el-radio label="lastMonth">上月</el-radio>
           </el-radio-group>
         </el-col>
       </el-row>
@@ -27,32 +28,18 @@ export default{
   },
   data(){
     return {
-      day:7,
       IndexModel:{
-        day:7,
-        sDate:'',
-        endDate:''
+        id:'',
+        date:'currentWeek',
       },
       list:[]
     };
   },
   mounted(){
+    this.IndexModel.id=this.$store.getters.getUserInfo.id;
     this.quotaByDay();
   },
   methods:{
-    changeDay(day){
-      let now=new Date();
-      this.IndexModel.endDate=this.formateDate(now,0);
-      this.IndexModel.sDate=this.formateDate(now,day);
-      this.quotaByDay();
-    },
-    formateDate(now,day){
-      let date=new Date(now.getTime()-day*12*60*60*60);
-      let y=now.getFullYear();
-      let m=(now.getMonth()+1)<10?'0'+now.getMonth():now.getMonth();
-      let d=now.getDate()<10?'0'+now.getDate():now.getDate();
-      return y+m+d;
-    },
     quotaByDay(){
       let params=Object.assign({},this.IndexModel);
       IndexCtr.quotaByDay(params)
@@ -124,9 +111,7 @@ export default{
         }]
       });
     },
-
   }
-
 }
 
 </script>

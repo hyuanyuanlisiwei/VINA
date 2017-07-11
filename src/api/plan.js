@@ -5,10 +5,30 @@
 import service from './service'
 
 export function getCostType() {
-    return service({
-        method:"GET",
-        url:"/adDic/getList?groupId=49"
-    });
+   return new Promise(function(resolve,reject) {
+     resolve( {
+       "code": "A000000",
+       "data": [
+         {
+           "childs": [],
+           "dicGroup": 49,
+           "dicKey": "cost_type_cpc",
+           "dicType": 1,
+           "dicValue": "按点击付费",
+           "enumValue": 1,
+           "id": 50,
+           "status": 1
+         },
+         {
+           "dicValue": "按激活付费",
+           "enumValue": 2,
+           "id": 775,
+           "status": 1
+         }
+       ],
+       "timestamp": "20170615163033"
+     });
+   })
 }
 export function getDeliveryModes() {
     return service({
@@ -64,42 +84,49 @@ export function getNetworks() {
 export function getAreas() {
     return service({
         method:"GET",
-        baseURL:'/',
-        url:"/static/area.json"
+        baseURL:'/static',
+        url:"area.json"
     });
 }
-export function planList(params){
-   console.log('mock planList');
+export function planList(data){
+    data['token']=window.localStorage.getItem('token');
+    data['type']=window.localStorage.getItem('type');
     return service({
-        method:"POST",
+        method:"get",
         url:"/plan/getList",
-        params:params
+        params:data
     });
 }
-export function planSave(params) {
-    return service({
-        method:"POST",
-        url:"/plan/save",
-        params:params
-    });
-}
-export function planUpdate(params) {
+export function planSave(data) {
+  data['token']=window.localStorage.getItem('token');
+  data['type']=window.localStorage.getItem('type');
   return service({
-    method:"POST",
-    url:"/plan/update",
-    params:params
+    method:'get',
+    url:'/plan/save',
+    params:data
+  });
+}
+export function planUpdate(data) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
+  return service({
+    method:'post',
+    url:`/plan/update?token=${token}&type=${type}`,
+    data:data
   });
 }
 export function planGet(params) {
+  params['token']=window.localStorage.getItem('token');
+  params['type']=window.localStorage.getItem('type');
   return service({
-    method:"POST",
+    method:"get",
     url:"/plan/get",
     params:params
   });
 }
 export function entityDelete(params) {
   return service({
-    method:"POST",
+    method:"get",
     url:"/entity/delete",
     params:params
 });
@@ -107,7 +134,7 @@ export function entityDelete(params) {
 
 export function entitySave(params) {
   return service({
-    method:"POST",
+    method:"get",
     url:"/entity/save",
     params:params
   });
@@ -115,7 +142,7 @@ export function entitySave(params) {
 
 export function planQuotaByDay(params) {
   return service({
-    method:"POST",
+    method:"get",
     params:params,
     url:"/plan/quotaByDay"
   });

@@ -9,10 +9,12 @@ import VueRouter from 'vue-router'
 const initRoutes=[
     {
         path:'/',
+        name:'登录',
         component:Login
     },
     {
         path:'/register',
+        name:'注册',
         component:Register
     },
     {

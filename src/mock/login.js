@@ -16,11 +16,11 @@ Mock.mock(/\/login\/login/,function (options) {
             permissions:[
                 {
                     name:"首页概览",
-                    url:"/index"
+                    url:"/index",
                 },
                 {
                     name:"计划管理",
-                    url:"/plan",
+                    url:"/plan"
                 }
             ]
         },

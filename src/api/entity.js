@@ -11,29 +11,30 @@ export function getEntityTypes() {
   });
 }
 export function entitySearch(params) {
+
   return service({
-    method:"POST",
+    method:"get",
     params:params,
     url:"/entity/getList"
   });
 }
 export function entityUpdate(params) {
   return service({
-    method:"POST",
+    method:"get",
     url:"/entity/update",
     params:params
   });
 }
 export function entityPreview(params) {
   return service({
-    method:"POST",
+    method:"get",
     url:"/entity/get",
     params:params
   });
 }
 export function entityQuotaByDay(params) {
   return service({
-    method:"POST",
+    method:"get",
     params:params,
     url:"/entity/quotaByDay"
   });

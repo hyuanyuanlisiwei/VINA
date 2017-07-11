@@ -148,8 +148,8 @@
                         </el-radio-group>
                         <div v-show="dxDqFlag==1">
                             <el-tree :data="areas" :props="treeProps"
-                                     show-checkbox node-key="id" ref="tree"
-                                     :default-checked-keys="TargetSetModel.dxDq"
+                                     ref="treeAreas"
+                                     show-checkbox node-key="id"
                                      :highlight-current='true'
                             ></el-tree>
                         </div>
@@ -163,9 +163,10 @@
                 <el-form :model="CreateAdModel" label-width="150px" class="mbottom">
                     <el-form-item label="图片素材">
                         <el-upload
-                          action="/upload/upload"
+                          :action="uploadURL"
                           auto-upload
                           drag
+                          name="myFile"
                           :data="{type:1}"
                           list-type="picture-card"
                           :before-upload="beforePicUpload"
@@ -180,9 +181,10 @@
                     </el-form-item>
                     <el-form-item label="视频素材" class="mtop">
                       <el-upload
-                        action="/upload/upload"
+                        :action="uploadURL"
                         auto-upload
                         drag
+                        name="myFile"
                         :data="{type:5}"
                         list-type="picture-card"
                         :before-upload="beforeVideoUpload"
@@ -192,7 +194,7 @@
                         <i class="el-icon-plus"></i>
                       </el-upload>
                       <el-dialog v-model="videoDialogVisible">
-                        <img width="100%" :src="videoDialogUrl">
+                        <video width="100%" :src="videoDialogUrl"></video>
                       </el-dialog>
                     </el-form-item>
                     <el-form-item label="广告类型" class="mtop">
@@ -223,7 +225,6 @@
                <el-dialog title="预览创意" :visible="entityPreviewFlag">
                  <img :src="entityPrevUrl">
                </el-dialog>
-
             </el-col>
         </el-row>
         <el-row>
@@ -245,7 +246,7 @@
 import policy from './policy.vue'
 import * as PlanCtr from '@/api/plan';
 import inputs from './inputs.vue'
-
+import moment from 'moment';
 export default{
     components:{
         policy,
@@ -258,6 +259,7 @@ export default{
             addActive:0,
             formNames:["BasicInfoForm","TargetSetForm","CreateAdForm"],
             //图片上传
+            uploadURL:'http://192.168.0.254:8080/upload/uploadFile',
             picDialogVisible:false,
             picDialogUrl:'',
             //贴片上传
@@ -289,7 +291,7 @@ export default{
             dxWlFlag:'',
             //基本信息
             BasicInfoModel:{
-                unitName:'百度',
+                unitName:'hyy',
                 costType:50,
                 deliveryMode:188,
                 isFrequency:0,
@@ -298,7 +300,7 @@ export default{
                 frequencPeriod:0,
                 isfilterDeviceCode:0,
                 extensionType:47,
-                landUrl:'baidu.com',
+                landUrl:'xiaomi.com',
                 clkMonitorUrl:'',
                 impMonitorUrl:''
             },
@@ -343,6 +345,7 @@ export default{
         }
         this.initPolicies();
         //------字典数据---------
+        this.getAreas();
         this.getCostTypes();
         this.getDeliveryModes();
         this.getFrequencPeriods();
@@ -350,7 +353,6 @@ export default{
         this.getAges();
         this.getGenders();
         this.getAcademics();
-        this.getAreas();
         this.getSystems();
         this.getOperators();
         this.getNetworks();
@@ -398,13 +400,12 @@ export default{
                 });
             }else if(finished==1){
                 this.editState ? this.editActive++ : this.addActive++;
-                this.TargetSetModel.dxDq=this.$refs.tree.getCheckedKeys();
             }else if(finished==2){
                 this.editState ? this.editActive++ : this.addActive++;
             }
         },
         addFinish(){
-            this.$router.push({path:"plan"});
+            this.$router.push({path:"/plan"});
         },
         initPolicies(limits){
             if(!limits){
@@ -427,15 +428,22 @@ export default{
             for(let limit of limitsArr){
                 let policy={};
                 this.policies.push(policy);
-                policy['date']=this.formatDate(limit['date']);
+                policy['date']=this.initPolicyDateFromStr(limit['date']);
                 policy['limit']=limit['limit']/100;
                 if(limit['times']){
                     policy['times']=this.formatTimesStr(limit['times']);
                     policy['timeFlag']=1;
                 }else{
-                    policy['timeFlag']='';
+                    policy['timeFlag']=0;
                 }
             }
+        },
+        initPolicyDateFromStr(dateStr){
+            let dateStrArr=dateStr.split('-');
+            let ret=[];
+            ret.push(moment(dateStrArr[0],'YYYY-MM-DD')._d);//moment类型转换为Date类型
+            ret.push(moment(dateStrArr[1],'YYYY-MM-DD')._d);//moment类型转换为Date类型
+            return ret;
         },
         formatTimesStr(times){
              let timesArr=times.split(',');
@@ -465,37 +473,61 @@ export default{
                 }
             }).catch(err=>{});
         },
+        createUrls(urlsArrObj,urls){
+            for(let url of urls){
+                urlsArrObj.push({'url':url});
+            }
+        },
         initModel(data){
           for(let key of Object.keys(data)){
             if("impMonitorUrl"==key){
-              this.impMonitorUrls=data[key].split(",");
+              this.impMonitorUrls=[];
+              this.createUrls(this.impMonitorUrls,data[key].split(","));
               continue;
             }else if('clkMonitorUrl'==key){
-              this.clkMonitorUrls=data[key].split(",");
+                this.clkMonitorUrls=[];
+                this.createUrls(this.clkMonitorUrls,data[key].split(","));
               continue;
             }else if('limits'==key){
               this.initPolicies(data[key]);
               continue;
+            }else if('dxDq'==key){
+                this['dxDqFlag']=1;
+                this.TargetSetModel[key]=data[key].split(",");
+                this.$refs.treeAreas.setCheckedKeys(this.TargetSetModel[key]);
+                continue;
             }
             //反显基本信息
-            if(this.CreateAdModel.hasOwnProperty(key)){
-              this.CreateAdModel[key]=data[key];
+            if(this.BasicInfoModel.hasOwnProperty(key)){
+              this.BasicInfoModel[key]=data[key];
             }else if(this.TargetSetModel.hasOwnProperty(key)){ //反显定向设置.
-              let flag=this.TargetSetModel[key]+'Flag';
+              let flag=key+'Flag';
               if(!this.hasOwnProperty(flag)){
                 continue;
               }
               if(this.TargetSetModel[key]){
                 this[flag]=1;
-                if(data[key]==parseInt(data[key])){
-                  this.TargetSetModel[key]=[data[key]];
+
+                if(data[key] && data[key]==parseInt(data[key])){
+                  this.TargetSetModel[key]=[+data[key]];
+                }else if(key=='dxNl'){
+                    this.TargetSetModel[key]=data[key].split(',');
                 }else{
-                  this.TargetSetModel[key]=(data[key]).join(',');
+                  this.TargetSetModel[key]=(data[key]).split(',').map((item)=>{
+                      return +item;
+                  });
                 }
               }else{
                 this[flag]='';
               }
             }
+//            console.log('-----本轮key:'+key+"-----value:"+data[key]);
+//            console.log('返显:');
+//            console.log(Object.assign({},this.BasicInfoModel,this.TargetSetModel));
+//            console.log(this.policies);
+//            console.log(this.clkMonitorUrls);
+//            console.log(this.impMonitorUrls);
+//            console.log('-----------------------------------------');
           }
         },
         planUpdate(){
@@ -517,6 +549,11 @@ export default{
                 if("A000000"==ret['code']){
                     this.CreateAdModel.uId=ret['data'];
                     this.next();
+
+
+
+                }else{
+                  this.$message.error(ret['message']);
                 }
             }).catch(err=>{});
         },
@@ -524,7 +561,7 @@ export default{
           //1,准备参数;
           let params=Object.assign({},this.BasicInfoModel,this.TargetSetModel);
           //数组转化为字符串;
-          params['dxDq']=this.$refs.tree.getCheckedKeys().join(',');
+          params['dxDq']=this.$refs.treeAreas.getCheckedKeys().join(',');
           params['dxNl']=params['dxNl'].join(',');
           params['dxWl']=params['dxWl'].join(',');
           params['dxXl']=params['dxXl'].join(',');
@@ -607,7 +644,7 @@ export default{
             for(let item of this.policies){
                 let obj={};
                 ret.push(obj);
-                obj['date']=this.getFormatDateStr(item['date'][0])+"-"+this.getFormatDateStr(item['date'][1]);
+                obj['date']=this.getFormatDateStr(item['date'][0])+'-'+this.getFormatDateStr(item['date'][1]);
                 obj['limit']=item['limit']*100;
                 if(0==item['timeFlag']){
                     obj["times"]='';
@@ -619,6 +656,7 @@ export default{
                     obj['times']=times.join(',');
                 }
             }
+            console.log(JSON.stringify(ret));
             return JSON.stringify(ret);
         },
         getFormatDateStr(date){
@@ -627,7 +665,7 @@ export default{
             }
             let y=date.getFullYear();
             let m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):date.getMonth()+1;
-            let d=date.getDate();
+            let d=date.getDate()<10?'0'+(date.getDate()):date.getDate();
             return y+m+d;
         },
         getUrls(array){

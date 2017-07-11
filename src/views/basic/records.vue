@@ -89,7 +89,7 @@
     methods:{
       changeDateRange(dateRange){
         this.RecordsModel.sDate=dateRange.substr(0,10);
-        this.RecordsModel.eDate=dateRange.substr(13);
+        this.RecordsModel.eDate=dateRange.substr(11);
       },
       recordsList(){
         let params=Object.assign({},this.RecordsModel);
@@ -97,7 +97,8 @@
           .then(res=>{
             let ret=res['data'];
             if('A000000'==ret['code']){
-              this.list=ret.data;
+
+              this.list=ret.data.data;
             }
           }).catch(error=>{});
       }

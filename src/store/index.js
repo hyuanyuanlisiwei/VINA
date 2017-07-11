@@ -7,7 +7,7 @@ import axios from 'axios';
 import router from '@/router/index'
 import Plan from '@/views/plan/plan'
 import Entity from '@/views/entity/entity'
-import AddEntity from '@/views/entity/add'
+import AddEntity from '@/views/entity/addEntity'
 import EntityQuotaByDay from '@/views/entity/quotaByDay'
 import PlanQuotaByDay from '@/views/plan/quotaByDay'
 import PlanEdit from '@/views/plan/edit'
@@ -28,17 +28,19 @@ const store=new Vuex.Store({
         systems:[],
         operators:[],
         networks:[],
-        userInfo:{},
-        routes:[],
         entityTypes:[],
-        allMenus:[
+        routes:[],
+        userInfo:{},
+        sideMenus:[],
+        allMenuRoutes:[
             {
                 path:'/index',
                 component:Layout,
                 redirect:'/index/index',
                 name:"首页概览",
+                meta:{roles:[2]},
                 children:[
-                    {path:'index',component:Index}
+                    {path:'index',component:Index,meta:{roles:[2]}}
                 ]
             },
             {
@@ -46,15 +48,16 @@ const store=new Vuex.Store({
                 component:Layout,
                 redirect:"/plan/index",
                 name:"计划管理",
+                meta:{roles:[2]},
                 children:[
-                    {path:"index",component:Plan},
-                    {path:"edit",component:PlanEdit},
-                    {path:"entity",component:Entity},
-                    {path:"addEntity",component:AddEntity},
-                    {path:"entityQuotaByDay",component:EntityQuotaByDay},
-                    {path:"planQuotaByDay",component:PlanQuotaByDay}
+                  {path:"index",component:Plan,meta:{roles:[2]}},
+                  {path:"edit",component:PlanEdit,meta:{roles:[2]}},
+                  {path:"entity",component:Entity,meta:{roles:[2]}},
+                  {path:"addEntity",component:AddEntity,meta:{roles:[2]}},
+                  {path:"entityQuotaByDay",component:EntityQuotaByDay,meta:{roles:[2]}},
+                  {path:"planQuotaByDay",component:PlanQuotaByDay,meta:{roles:[2]}}
                 ]
-            },
+          }
         ]
     },
     mutations:{
@@ -63,16 +66,22 @@ const store=new Vuex.Store({
         },
         saveUserInfo(state,userInfo){
             state.userInfo=userInfo;
-            let permissions=userInfo.permissions;
+            //动态生成该用户的路由权限:这只是二级路由,如果是多级路由的话,得写一个递归函数了.稍后改写.
+            let type=userInfo.type;
             state.routes=[];
-            for(let permission of permissions){
-                for(let menu of state.allMenus){
-                    if(menu['path']==permission['url']){
-                        state.routes.push(menu);
-                    }
+            for(let menuRoute of state.allMenuRoutes){
+              if(menuRoute.meta.roles.includes(type)){
+                let newMenuRoute=Object.assign({},menuRoute);
+                newMenuRoute.children=[];
+                for(let child of menuRoute.children){
+                  if(child.meta.roles.includes(type)){
+                    newMenuRoute.children.push(child);
+                  }
                 }
+                state.routes.push(newMenuRoute);
+                router.addRoutes(state.routes);
+              }
             }
-            router.addRoutes(state.routes);
         },
         saveCostTypes(state,costTypes){
             state.costTypes=costTypes;
@@ -114,9 +123,6 @@ const store=new Vuex.Store({
     getters:{
         getUserInfo:state=>{
             return state.userInfo;
-        },
-        getUserMenus:state=>{
-            return state.userInfo.permissions;
         },
         getRoutes:state=>{
             return state.routes;
