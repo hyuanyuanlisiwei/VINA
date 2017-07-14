@@ -11,18 +11,21 @@ export function getEntityTypes() {
   });
 }
 export function entitySearch(params) {
-
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
     method:"get",
     params:params,
-    url:"/entity/getList"
+    url:`/entity/getList?token=${token}&type=${type}`
   });
 }
 export function entityUpdate(params) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
     method:"get",
-    url:"/entity/update",
-    params:params
+    params:params,
+    url:`/entity/update?token=${token}&type=${type}`
   });
 }
 export function entityPreview(params) {
@@ -33,10 +36,12 @@ export function entityPreview(params) {
   });
 }
 export function entityQuotaByDay(params) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
     method:"get",
+    url:`/entity/quotaByDay?token=${token}&type=${type}`,
     params:params,
-    url:"/entity/quotaByDay"
   });
 }
 

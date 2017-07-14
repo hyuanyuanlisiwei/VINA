@@ -10,6 +10,7 @@
 
 <style lang="scss">
     @import "styles/styles";
+    @import "../static/css/theme-blue/color-blue.css";
 </style>
 
 

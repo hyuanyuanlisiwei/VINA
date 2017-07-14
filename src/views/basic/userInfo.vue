@@ -39,7 +39,7 @@ export default{
           name:'',
           password:'',
           linkman:'',
-          businessLicense:'',
+          businesslicense:'',
           address:'',
           tel:'',
           email:''

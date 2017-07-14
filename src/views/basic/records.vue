@@ -1,5 +1,6 @@
 <template>
   <div>
+    <bread-crumb :breadcrumbs="[{to:'',name:'充值记录'}]"></bread-crumb>
     <el-row>
       <el-col :span="24">
         <el-form :inline="true" :model="RecordsModel" class="demo-form-inline">
@@ -35,7 +36,11 @@
 </template>
 <script>
   import * as UserInfoCtr from '@/api/login'
+  import BreadCrumb from '@/views/layout/breadcrumb'
   export default{
+    components:{
+        BreadCrumb
+    },
     data(){
       return {
         RecordsModel:{

@@ -6,7 +6,7 @@
                 <el-input v-model="LoginModel.name" placeholder="请输入用户名"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input v-model="LoginModel.password" placeholder="请输入密码" type="password"></el-input>
+                <el-input @keyup.enter.native="login('loginForm')" v-model="LoginModel.password" placeholder="请输入密码" type="password"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="login('loginForm')">登录</el-button>
@@ -30,19 +30,22 @@
                     }]
                 },
                 LoginModel:{
-                    name:"vina",
-                    password:'123456'
+                    name:"",
+                    password:''
                 }
             }
         },
-        mounted(){
-
-        },
+        mounted(){},
         methods:{
             login(formName){
+                console.log('login');
                 this.$refs[formName].validate((valid)=>{
                    if(!valid){
-                       alert("请输入登录信息");
+                     this.$msgbox({
+                       type:'error',
+                       title:'消息',
+                       message:'用户名密码不能为空!'
+                     });
                    }else{
                         LoginCtr.login(this.LoginModel)
                             .then(res=>{
@@ -89,8 +92,5 @@
     text-align: center;
     color: #505458;
   }
-
 }
-
-
 </style>

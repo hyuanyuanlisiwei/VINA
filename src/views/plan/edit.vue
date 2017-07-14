@@ -1,6 +1,7 @@
 <template>
     <div class="edit-wrapper">
-        <el-row >
+      <bread-crumb :breadcrumbs="[{to:'/plan',name:'计划管理'},{to:'',name:'计划新增或修改'}]"></bread-crumb>
+      <el-row >
             <el-col :span="24" v-if="!editState">
                 <!--创建-->
                 <el-steps space="33%" :active="addActive" style="margin-left: 16%">
@@ -27,8 +28,12 @@
                     <el-form-item label="计费方式">
                         <template>
                             <el-radio-group v-model="BasicInfoModel.costType">
-                                <el-radio class="radio" v-for="(item,index) in costTypes" :key="index" :label="item.id">{{item.dicValue}}</el-radio>
+                                <el-radio class="radio" :label="50">CPM</el-radio>
+                                <el-radio class="radio" :label="775" :disabled="isCPA==0">CPA</el-radio>
                             </el-radio-group>
+                            <el-tooltip content="完成S2S对接后可开启此选项" placement="top-start" v-show="isCPA==0">
+                              <span class="el-icon-information" style="color:#157abc"></span>
+                            </el-tooltip>
                         </template>
                     </el-form-item>
                     <policy :policies="policies"></policy>
@@ -49,6 +54,9 @@
                                 <el-radio-group v-model="BasicInfoModel.frequencPeriod">
                                     <el-radio v-for="(item,index) in frequencPeriods" :key="index" :label="item.id">{{item.dicValue}}</el-radio>
                                 </el-radio-group>
+                            </el-form-item>
+                            <el-form-item label="频次值">
+                              <el-input-number v-model="BasicInfoModel.frequencyNum" type="number"></el-input-number>
                             </el-form-item>
                         </div>
                     </el-form-item>
@@ -93,7 +101,6 @@
                     </el-form-item>
                     <el-form-item label="性别">
                         <el-radio-group v-model="TargetSetModel.dxXb">
-                            <el-radio label="">不限</el-radio>
                             <el-radio v-for="(item,index) in genders" :key="index" :label="item.id">{{item.dicValue}}</el-radio>
                         </el-radio-group>
                     </el-form-item>
@@ -159,73 +166,7 @@
         </el-row>
         <!--创建广告-->
         <el-row class="mtop" v-show="showStep3">
-            <el-col :span="24" :offset="4">
-                <el-form :model="CreateAdModel" label-width="150px" class="mbottom">
-                    <el-form-item label="图片素材">
-                        <el-upload
-                          :action="uploadURL"
-                          auto-upload
-                          drag
-                          name="myFile"
-                          :data="{type:1}"
-                          list-type="picture-card"
-                          :before-upload="beforePicUpload"
-                          :on-preview="handlePreviewPic"
-                          :on-success="picUploadSuccess"
-                          :on-remove="handleRemovePic">
-                          <i class="el-icon-plus"></i>
-                        </el-upload>
-                        <el-dialog v-model="picDialogVisible">
-                          <img width="100%" :src="picDialogUrl">
-                        </el-dialog>
-                    </el-form-item>
-                    <el-form-item label="视频素材" class="mtop">
-                      <el-upload
-                        :action="uploadURL"
-                        auto-upload
-                        drag
-                        name="myFile"
-                        :data="{type:5}"
-                        list-type="picture-card"
-                        :before-upload="beforeVideoUpload"
-                        :on-preview="handlePreviewVideo"
-                        :on-success="videoUploadSuccess"
-                        :on-remove="handleRemoveVideo">
-                        <i class="el-icon-plus"></i>
-                      </el-upload>
-                      <el-dialog v-model="videoDialogVisible">
-                        <video width="100%" :src="videoDialogUrl"></video>
-                      </el-dialog>
-                    </el-form-item>
-                    <el-form-item label="广告类型" class="mtop">
-                      <el-checkbox-group v-model="CreateAdModel.entityTypes">
-                        <el-checkbox :label="36">图片</el-checkbox>
-                        <el-checkbox :label="53">贴片</el-checkbox>
-                      </el-checkbox-group>
-                    </el-form-item>
-                    <el-form-item>
-                       <el-button type="primary" @click="entitySave">生成创意</el-button>
-                    </el-form-item>
-                </el-form>
-            </el-col>
-            <el-col :span="22" :offset="1">
-               <h1>创意列表</h1>
-               <el-table
-                 :data="entityList" border>
-                 <el-table-column prop="id" label="ID"></el-table-column>
-                 <el-table-column prop="entityName" label="创意名称"></el-table-column>
-                 <el-table-column label="操作">
-                   <template scope="scope">
-                     <el-button :plain="true" type="success" @click="entityPreview(scope.row)" icon="picture"></el-button>
-                     <el-button :plain="true" type="danger" @click="entityRemove(scope.row,scope.$index)" icon="close"></el-button>
-                   </template>
-                 </el-table-column>
-               </el-table>
-               <!--预览创意 -->
-               <el-dialog title="预览创意" :visible="entityPreviewFlag">
-                 <img :src="entityPrevUrl">
-               </el-dialog>
-            </el-col>
+          <add-entity></add-entity>
         </el-row>
         <el-row>
             <el-col :span="6" :offset="18" v-if="editState">
@@ -247,19 +188,25 @@ import policy from './policy.vue'
 import * as PlanCtr from '@/api/plan';
 import inputs from './inputs.vue'
 import moment from 'moment';
+import AddEntity from '@/views/entity/addEntity'
+import BreadCrumb from '@/views/layout/breadcrumb'
 export default{
     components:{
         policy,
-        inputs
+        inputs,
+        AddEntity,
+        BreadCrumb
     },
     data(){
         return {
+            isCPA:true,
             id:'',
             editActive:0,
             addActive:0,
             formNames:["BasicInfoForm","TargetSetForm","CreateAdForm"],
             //图片上传
-            uploadURL:'http://192.168.0.254:8080/upload/uploadFile',
+//            uploadURL:'http://192.168.0.254:8080/upload/uploadFile',
+            uploadURL:'/upload/uploadFile',
             picDialogVisible:false,
             picDialogUrl:'',
             //贴片上传
@@ -268,8 +215,8 @@ export default{
             //返显和提交时候重组的数据;
             //传入子组件的值;
             policies:[],
-            clkMonitorUrls:[{url:'taobao.com'}],
-            impMonitorUrls:[{url:'tengxun.com'}],
+            clkMonitorUrls:[{url:''}],
+            impMonitorUrls:[{url:''}],
             //字典数据;
             costTypes:[],
             deliveryModes:[],
@@ -291,7 +238,7 @@ export default{
             dxWlFlag:'',
             //基本信息
             BasicInfoModel:{
-                unitName:'hyy',
+                unitName:'',
                 costType:50,
                 deliveryMode:188,
                 isFrequency:0,
@@ -299,8 +246,9 @@ export default{
                 //这两个单词错误
                 frequencPeriod:0,
                 isfilterDeviceCode:0,
+                frequencyNum:0,
                 extensionType:47,
-                landUrl:'xiaomi.com',
+                landUrl:'',
                 clkMonitorUrl:'',
                 impMonitorUrl:''
             },
@@ -325,21 +273,12 @@ export default{
             treeProps: {
                 children: 'childs',
                 label: 'dicValue'
-            },
-            //创建广告
-            entityList:[],
-            entityPreviewFlag:false,
-            entityPrevUrl:'',
-            CreateAdModel:{
-                uId:'',
-                picUrls:[],
-                videoUrls:[],
-                entityTypes:[],
             }
         }
     },
     mounted(){
         this.id=this.$route.query.id;
+        this.isCPA=this.$store.getters.getUserInfo.isCPA
         if(this.editState){
             this.planGet();
         }
@@ -417,12 +356,6 @@ export default{
                 }];
                 return;
             }
-            //这里需要根据接口请求自己转换代码格式.
-//            this.policies=[
-//                {date:['2017-06-06','2017-06-12'],timeFlag:1,times:[{startTime:'01:00',endTime:'02:00'},{startTime:'03:00',endTime:'04:00'},{startTime:'05:00',endTime:'06:00'}],limit:12},
-//                {date:['2017-06-06','2017-06-12'],timeFlag:1,times:[{startTime:'01:00',endTime:'02:00'},{startTime:'03:00',endTime:'04:00'},{startTime:'05:00',endTime:'06:00'}],limit:12},
-//                {date:['2017-06-06','2017-06-12'],timeFlag:1,times:[{startTime:'01:00',endTime:'02:00'},{startTime:'03:00',endTime:'04:00'},{startTime:'05:00',endTime:'06:00'}],limit:12}
-//            ];
             let limitsArr=JSON.parse(limits);
             this.policies=[];
             for(let limit of limitsArr){
@@ -521,13 +454,6 @@ export default{
                 this[flag]='';
               }
             }
-//            console.log('-----本轮key:'+key+"-----value:"+data[key]);
-//            console.log('返显:');
-//            console.log(Object.assign({},this.BasicInfoModel,this.TargetSetModel));
-//            console.log(this.policies);
-//            console.log(this.clkMonitorUrls);
-//            console.log(this.impMonitorUrls);
-//            console.log('-----------------------------------------');
           }
         },
         planUpdate(){
@@ -547,11 +473,8 @@ export default{
             PlanCtr.planSave(params).then((res)=>{
                 let ret=res.data;
                 if("A000000"==ret['code']){
-                    this.CreateAdModel.uId=ret['data'];
+                  this.$store.commit('savePlanId',ret['data']);
                     this.next();
-
-
-
                 }else{
                   this.$message.error(ret['message']);
                 }
@@ -574,71 +497,6 @@ export default{
           params['limits']=this.getSavedPolicies();
           return params;
         },
-        entityPreview(row){
-          this.entityPreviewFlag=true;
-          this.entityPrevUrl=row.entityUrl;
-        },
-        entityRemove(row,index){
-            let params={id:row.id};
-            PlanCtr.entityDelete(params)
-              .then(res=>{
-                  let ret=res.data;
-                  if("A000000"==ret['code']){
-                      this.$message({
-                        type:'success',
-                        message:"创意删除成功!"
-                      });
-                      this.entityList.splice(index,1);
-                  }else{
-                      this.$message.error("创意删除失败!");
-                  }
-              }).catch(err=>{});
-        },
-        beforePicUpload(file){
-
-        },
-        handlePreviewPic(file){
-            this.picDialogUrl=file.url;
-            this.picDialogVisible=true;
-        },
-        picUploadSuccess(response,file,fileList){
-            this.CreateAdModel.picUrls.push(response.data.url);
-        },
-        handleRemovePic(file,fileList){
-          console.log('-------remove---------');
-          console.log(file);
-          let index=this.CreateAdModel.picUrls.indexOf(file.url);
-          this.CreateAdModel.picUrls.splice(index,1);
-        },
-        beforeVideoUpload(file){
-            let flag=file.size/1024/1024>10;
-            if(flag){
-                this.$message.error("上传的视频不能大于10MB!");
-            }
-            return !flag;
-        },
-        handlePreviewVideo(file){
-          this.videoDialogUrl=file.url;
-          this.videoDialogVisible=true;
-        },
-        videoUploadSuccess(response,file,fileList){
-            this.CreateAdModel.videoUrls.push(response.data.url);
-        },
-        handleRemoveVideo(file,fileList){
-            console.log('-------remove---------');
-            console.log(file);
-            let index=this.CreateAdModel.videoUrls.indexOf(file.url);
-            this.CreateAdModel.videoUrls.splice(index,1);
-        },
-        entitySave(){
-            let params=Object.assign({},this.CreateAdModel);
-            params["vedioUrls"]=params["vedioUrls"].join(',');
-            params["picUrls"]=params["picUrls"].join(',');
-            params["entityTypes"]=params["entityTypes"].join(',');
-            PlanCtr.entitySave(params).then(res=>{
-
-            }).catch(err=>{});
-        },
         getSavedPolicies(){
             let ret=[];
             for(let item of this.policies){
@@ -656,7 +514,6 @@ export default{
                     obj['times']=times.join(',');
                 }
             }
-            console.log(JSON.stringify(ret));
             return JSON.stringify(ret);
         },
         getFormatDateStr(date){
@@ -737,8 +594,6 @@ export default{
                 {key:'41-50',value:'41-50岁'},
                 {key:'50-200',value:'50岁以上'}
             ];
-
-
         },
         getGenders(){
             this.genders=this.$store.getters.getGenders;
@@ -752,8 +607,6 @@ export default{
                     this.$store.commit("saveGenders",ret.data);
                 }
             }).catch(error=>{});
-
-
         },
         getAcademics(){
             this.academics=this.$store.getters.getAcademics;

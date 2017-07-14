@@ -1,20 +1,9 @@
 <template>
     <div class="wrapper">
-        <div class="header-wrapper">
-            <app-header class="header"></app-header>
-        </div>
+        <app-header class="header"></app-header>
         <div class="container-wrapper">
-            <div class="sidebar-wrapper">
-              <sidebar class="sidebar"></sidebar>
-            </div>
-            <div class="main-wrapper">
-               <div class="breadcrumb-wrapper">
-                 <breadcrumb></breadcrumb>
-               </div>
-               <div class="content-wrapper">
-                 <main-content class="content"></main-content>
-               </div>
-            </div>
+          <sidebar class="sidebar-wrapper"></sidebar>
+          <main-content class="main-wrapper"></main-content>
         </div>
     </div>
 </template>
@@ -34,45 +23,41 @@
 </script>
 <style lang="scss">
   .wrapper{
-      .header-wrapper{
-        position:relative;
+      .header{
         box-sizing: border-box;
-        padding-left: 20px;
         width: 100%;
         height: 70px;
         line-height: 70px;
         color: #fff;
-        background-color: #2483ff;
-      }
-      .container-wrapper {
-        display: flex;
-        position: absolute;
-        top: 70px;
+        position:fixed;
+        top: 0;
         left: 0;
         right: 0;
+        z-index:1000
+      }
+      .container-wrapper {
+         position: relative;
+         width: 100%;
+         height: 100%;
         .sidebar-wrapper{
-          flex: 0 0 220px;
-          background-color: #ebeef5;
+          position: fixed;
+          width: 180px;
+          top: 70px;
+          bottom: 0;
+          left: 0;
+          overflow: hidden;
+          transition: all .28s ease-out;
+          background-color: #48576a;
         }
         .main-wrapper{
-          flex: 1;
           box-sizing: border-box;
           padding: 20px;
+          padding-top: 100px;
           background-color: #fff;
-          .breadcrumb-wrapper{
-            width: 100%;
-            height: 30px;
-            border-bottom: 1px solid #d1d7e5;
-          }
-          .content-wrapper{
-            width: 100%;
-            margin-top: 20px;
-          }
+          min-height: 100%;
+          transition: all .28s ease-out;
+          margin-left: 180px;
         }
       }
-
-
   }
-
-
 </style>

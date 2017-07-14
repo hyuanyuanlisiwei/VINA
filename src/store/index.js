@@ -7,13 +7,15 @@ import axios from 'axios';
 import router from '@/router/index'
 import Plan from '@/views/plan/plan'
 import Entity from '@/views/entity/entity'
-import AddEntity from '@/views/entity/addEntity'
+import AddEntity from '@/views/entity/add'
 import EntityQuotaByDay from '@/views/entity/quotaByDay'
 import PlanQuotaByDay from '@/views/plan/quotaByDay'
 import PlanEdit from '@/views/plan/edit'
 import Index from '@/views/index/index'
 import Layout from '@/views/layout/layout'
 import * as PlanCtr from '@/api/plan';
+import UserInfo from '@/views/basic/userInfo'
+import Records from '@/views/basic/records'
 
 Vue.use(Vuex);
 Vue.prototype.axios=axios;
@@ -37,25 +39,27 @@ const store=new Vuex.Store({
                 path:'/index',
                 component:Layout,
                 redirect:'/index/index',
-                name:"首页概览",
+                menu:'首页概况',
                 meta:{roles:[2]},
                 children:[
-                    {path:'index',component:Index,meta:{roles:[2]}}
+                  {path:'index',name:'首页概览',component:Index,meta:{roles:[2]}},
+                  {path:'userInfo',name:'账号信息',component:UserInfo,meta:{roles:[2]}},
+                  {path:'records',name:'充值记录',component:Records,meta:{roles:[2]}}
                 ]
             },
             {
                 path:'/plan',
                 component:Layout,
                 redirect:"/plan/index",
-                name:"计划管理",
+                menu:'计划管理',
                 meta:{roles:[2]},
                 children:[
-                  {path:"index",component:Plan,meta:{roles:[2]}},
-                  {path:"edit",component:PlanEdit,meta:{roles:[2]}},
-                  {path:"entity",component:Entity,meta:{roles:[2]}},
-                  {path:"addEntity",component:AddEntity,meta:{roles:[2]}},
-                  {path:"entityQuotaByDay",component:EntityQuotaByDay,meta:{roles:[2]}},
-                  {path:"planQuotaByDay",component:PlanQuotaByDay,meta:{roles:[2]}}
+                  {path:"index",name:"计划管理",component:Plan,meta:{roles:[2]}},
+                  {path:"edit",name:'计划修改',component:PlanEdit,meta:{roles:[2]}},
+                  {path:"entity",name:'创意管理',component:Entity,meta:{roles:[2]}},
+                  {path:"addEntity",name:'创意修改',component:AddEntity,meta:{roles:[2]}},
+                  {path:"entityQuotaByDay",name:'创意报表',component:EntityQuotaByDay,meta:{roles:[2]}},
+                  {path:"planQuotaByDay",name:'计划报表',component:PlanQuotaByDay,meta:{roles:[2]}}
                 ]
           }
         ]

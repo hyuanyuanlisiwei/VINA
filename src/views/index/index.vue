@@ -1,8 +1,9 @@
 <template>
     <div class="index-wrapper">
+      <bread-crumb :breadcrumbs="[{to:'',name:'首页概况'}]"></bread-crumb>
       <basic-comp></basic-comp>
-      <el-row>
-        <el-col :span="24">
+      <el-row class="mtop">
+        <el-col :span="20" :offset="4">
           <el-radio-group v-model="IndexModel.date" @change="quotaByDay">
             <el-radio label="currentWeek">本周</el-radio>
             <el-radio label="lastWeek">上周</el-radio>
@@ -13,7 +14,7 @@
       </el-row>
       <el-row>
         <el-col :span="24">
-          <div id="charts"></div>
+          <div id="charts" style="width: 1200px;height: 500px;margin: 30px auto"></div>
         </el-col>
       </el-row>
     </div>
@@ -21,10 +22,12 @@
 <script>
 import echarts from 'echarts'
 import BasicComp from '@/views/basic/basic'
+import BreadCrumb from '@/views/layout/breadcrumb'
 import * as IndexCtr from '@/api/login'
 export default{
   components:{
-      BasicComp,
+    BasicComp,
+    BreadCrumb
   },
   data(){
     return {
@@ -32,12 +35,20 @@ export default{
         id:'',
         date:'currentWeek',
       },
-      list:[]
+      list:[],
+      daysList:[],
+      activeList:[],
+      clkList:[],
+      impList:[],
+      clkRateList:[],
+      rateList:[],
+      titleList:['曝光数','点击数','激活数','点击率(%)','转化率(%)'],
     };
   },
   mounted(){
     this.IndexModel.id=this.$store.getters.getUserInfo.id;
     this.quotaByDay();
+    this.initCharts('charts');
   },
   methods:{
     quotaByDay(){
@@ -48,8 +59,14 @@ export default{
           if('A000000'==ret['code']){
             //计算转化率,转化成本
             for(let item of ret.data){
-              item['rate']=((item['act']/item['clk'])*100).toFixed(2);
-              item['clkRate']=((item['clk']/item['exp'])*100).toFixed(2);
+              item['rate']='';
+              item['clkRate']='';
+              if(item['act'] && item['clk']){
+                item['rate']=((item['act']/item['clk'])*100).toFixed(2);
+              }
+              if(item['clk'] && item['exp']){
+                item['clkRate']=((item['clk']/item['exp'])*100).toFixed(2);
+              }
             }
             this.list=ret.data;
             //重绘折线图
@@ -65,35 +82,46 @@ export default{
         this.activeList.push(item['active']);
         this.clkList.push(item['clk']);
         this.impList.push(item['imp']);
-        this.clkRateList.push(item['clkRate']);
-        this.rateList.push(item['rate']);
+        //计算点击率喝转换率
+        if(item['imp'] && item['clk']){
+          this.clkRateList.push(((item['clk']/item['imp'])*100).toFixed(2));
+        }else{
+            this.clkRateList.push('0');
+        }
+        if(item['clk'] && item['active']){
+          this.rateList.push(((item['active']/item['clk'])*100).toFixed(2));
+        }else{
+          this.rateList.push('0');
+        }
       }
-
       charts.setOption({
         tooltip:{
           trigger:'axis',
           axisPointer:{
-            type:'shadow'
+           type:'cross',
+           label:{
+               backgroundColor:'#6a7985'
+           }
           }
         },
         legend:{
-          data:['曝光数','点击数','激活数','点击率(%)','转化率(%)']
+          data:this.titleList
         },
         xAxis:[{
           type:'category',
-          data:this.daysList,
-          name:"时间"
+          data:this.daysList
         }],
         yAxis:[{
-          type:'value',
-          position:'left'
+          type:'value'
         }],
         series:[{
-          name:'曝光数',
+          name:this.titleList[0],
           type:'line',
+          smooth:true,
+          itemStyle: {normal: {areaStyle: {type: 'default'}}},
           data:this.impList
         },{
-          name:'点击数',
+          name:this.titleList[1],
           type:'line',
           data:this.clkList
         },{
@@ -101,11 +129,11 @@ export default{
           type:'line',
           data:this.activeList
         },{
-          name:'点击率',
+          name:'点击率(%)',
           type:'line',
           data:this.clkRateList
         },{
-          name:'转化率',
+          name:'转化率(%)',
           type:'line',
           data:this.rateList
         }]
@@ -113,9 +141,10 @@ export default{
     },
   }
 }
-
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
-
+.mtop{
+  margin-top: 30px;
+}
 
 </style>

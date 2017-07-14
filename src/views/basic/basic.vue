@@ -1,22 +1,21 @@
 <template>
     <div class="basic-wrapper">
-        <el-row>
+        <el-row >
             <el-col :span="4" :offset="5">
               <el-card class="box-card">
-                <span class="title">今日花费:</span><span class="content">{{BasicInfo.todayCost}}</span>
+                <span class="title">今日花费(¥):</span><span class="content">{{BasicInfo.todayCost}}</span>
               </el-card>
             </el-col>
             <el-col :span="4" :offset="5">
               <el-card class="box-card">
-                <span class="title">账户余额:</span><span class="content">{{BasicInfo.balance}}</span>
+                <span class="title">账户余额(¥):</span><span class="content">{{BasicInfo.balance}}</span>
               </el-card>
             </el-col>
         </el-row>
-
     </div>
 </template>
 <script>
-  import * as IndexCtr from '@/api/login'
+import * as IndexCtr from '@/api/login'
 export default{
   data(){
     return{
@@ -38,24 +37,21 @@ export default{
                this.BasicInfo=ret['data'];
            }
         }).catch(error=>{});
-    },
-
+    }
   }
 }
-
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
   .box-card{
     text-align: center;
-    .title{
-      color:#00f;
-      font-weight: 700;
-    }
+    background-color:#157abc;
+    color: #fff;
+    font-weight:700;
     .content{
-      color:#f00;
-      font-weight: 700;
+      margin-left: 15px;
     }
   }
-
-
 </style>
+.box-card{
+  background-color
+}

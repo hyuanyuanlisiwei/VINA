@@ -1,23 +1,27 @@
 <template>
     <div class="entityWrapper">
+        <bread-crumb :breadcrumbs="[{to:'',name:'创意管理'}]"></bread-crumb>
         <el-row>
           <el-col :span="24">
             <el-form :model="EntityModel" :inline="true">
-              <el-form-item label="付费类型">
+              <el-form-item label="创意类型">
                 <el-select v-model="EntityModel.entityType" placeholder="请选择创意类型">
-                  <el-option v-for="item in entityTypes" :key="item.id" :value="item.id" :label="item.dicValue"></el-option>
+                  <el-option  :value="36" label="图片"></el-option>
+                  <el-option  :value="53" :label="贴片"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="投放状态">
-                <el-switch v-model="EntityModel.runState" on-text="启动" off-text="关闭"
-                           on-value="1" off-value="0">
-                </el-switch>
+                <el-radio-group v-model="EntityModel.runState">
+                  <el-radio-button label="">全部</el-radio-button>
+                  <el-radio-button :label="1">启动</el-radio-button>
+                  <el-radio-button :label="0">关闭</el-radio-button>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="时间">
                 <el-date-picker
                   @change="changeDateRange"
                   format="yyyy-MM-dd"
-                  v-model="EntityModel.dateRange"
+                  v-model="dateRange"
                   type="daterange"
                   range-separator="-"
                   align="right"
@@ -33,7 +37,7 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-button style="float:right" type="primary" @click="add">新增创意<i class="el-icon-plus el-icon--right"></i></el-button>
+            <el-button style="float:right;margin-bottom: 15px" size="small" type="primary" @click="add">新增创意<i class="el-icon-plus el-icon--right"></i></el-button>
           </el-col>
         </el-row>
         <el-row>
@@ -67,6 +71,17 @@
             </el-table>
           </el-col>
         </el-row>
+        <el-row class="mtop">
+          <el-col>
+            <el-pagination
+              @current-change="entitySearch"
+              :current-page.sync="EntityModel.cp"
+              :page-size="EntityModel.ps"
+              layout="total, prev, pager, next"
+              :total="totalItemNum">
+            </el-pagination>
+          </el-col>
+        </el-row>
         <!--创意预览-->
       <el-dialog v-model="entityDialogVisible">
         <img width="100%" :src="entityUrl">
@@ -76,19 +91,25 @@
 </template>
 <script>
 import * as EntityCtr from '@/api/entity'
+import BreadCrumb from '@/views/layout/breadcrumb'
 export default{
+    components:{
+      BreadCrumb
+    },
     data(){
       return {
         //字典数据;
         entityTypes:[],
-
+        dateRange:[],
+        totalItemNum:0,
         EntityModel:{
+          cp:1,
+          ps:15,
           id:'',
-          runState:0,
+          runState:'',
           entityType:'',
           sDate:'',
-          eDate:'',
-          dateRange:''
+          eDate:''
         },
         //表格数据;
         list:[],
@@ -135,11 +156,25 @@ export default{
     },
     mounted(){
       this.EntityModel.id=this.$route.query.id;
+      this.initEntityModel();
       //字典数据
-      this.initEntityTypes();
       this.entitySearch();
     },
     methods:{
+      initEntityModel(){
+        let end = new Date();
+        let start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+        this.dateRange=[start,end];
+        this.EntityModel.sDate=this.getDateStr(start);
+        this.EntityModel.eDate=this.getDateStr(end);
+      },
+      getDateStr(date){
+        let y=date.getFullYear();
+        let m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1);
+        let d=date.getDate()<10?'0'+date.getDate():date.getDate();
+        return y+'-'+m+'-'+d;
+      },
       initEntityTypes(){
         this.entityTypes=this.$store.getters.getEntityTypes;
         if(!this.entityTypes){
@@ -154,7 +189,7 @@ export default{
       },
       changeDateRange(dateRange){
         this.EntityModel.sDate=dateRange.substr(0,10);
-        this.EntityModel.eDate=dateRange.substr(13);
+        this.EntityModel.eDate=dateRange.substr(11);
       },
       entitySearch(){
         let params=Object.assign({},this.EntityModel);
@@ -162,11 +197,24 @@ export default{
           .then(res=>{
             let ret=res.data;
             if("A000000"==ret['code']){
+              //重置分页数据
+              this.totalItemNum=ret.data.totalItemNum;
+              this.EntityModel.cp=ret.data.currentPageNum;
               //计算转化率,转化成本
               for(let item of ret.data.data){
-                item['rate']=((item['active']/item['clk'])*100).toFixed(2)+'%';
-                item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
-                item['benefit']=(item['cost']/item['active']).toFixed(2);
+                //显示处理
+                item['rate']='';
+                item['clkRate']='';
+                item['benefit']='';
+                if(item['clk'] && item['active']){
+                  item['rate']=((item['active']/item['clk'])*100).toFixed(2)+'%';
+                }
+                if(item['imp'] && item['clk']){
+                  item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
+                }
+                if(item['active'] && item['cost']){
+                  item['benefit']=(item['cost']/item['active']).toFixed(2);
+                }
                 item['runState']=item['runState']==1?true:false;
               }
               this.list=ret.data.data;
@@ -190,7 +238,7 @@ export default{
         });
       },
       changeRunState(row){
-        let params={id:row.id,runState:row.runState?1:0};
+        let params={id:row.id,runState:row.runState?0:1};
         EntityCtr.entityUpdate(params).then(res=>{
           let ret=res.data;
           if('A000000'==ret.code){
@@ -224,7 +272,7 @@ export default{
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
   .highlight{
-    color: green;
+    color: #0b3aa7;
     cursor: pointer;
     width:100%;
     height: 100%;

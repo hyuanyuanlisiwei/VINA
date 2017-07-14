@@ -1,22 +1,28 @@
 <template>
     <div class="plan-wrapper">
+        <bread-crumb :breadcrumbs="[{to:'',name:'计划管理'}]"></bread-crumb>
         <el-row>
-           <el-col :span="24">
+           <el-col>
                <el-form :inline="true" :model="PlanModel" class="demo-form-inline">
                    <el-form-item label="计划名称">
                        <el-input v-model="PlanModel.pName" placeholder="请输入计划名称"></el-input>
                    </el-form-item>
                    <el-form-item label="投放状态">
-                       <el-switch v-model="PlanModel.runState" on-text="启动" off-text="关闭"
-                                  on-value="1" off-value="0">
-                       </el-switch>
+                       <!--<el-switch v-model="PlanModel.runState" on-text="启动" off-text="关闭"-->
+                                  <!--on-value="1" off-value="0">-->
+                       <!--</el-switch>-->
+                       <el-radio-group v-model="PlanModel.runState">
+                         <el-radio-button label="">全部</el-radio-button>
+                         <el-radio-button :label="1">启动</el-radio-button>
+                         <el-radio-button :label="0">关闭</el-radio-button>
+                       </el-radio-group>
                    </el-form-item>
                    <el-form-item label="时间">
                        <el-date-picker
                                size="small"
                                @change="changeDateRange"
                                format="yyyy-MM-dd"
-                               v-model="PlanModel.dateRange"
+                               v-model="dateRange"
                                type="daterange"
                                range-separator="-"
                                align="right"
@@ -37,12 +43,12 @@
            </el-col>
         </el-row>
         <el-row>
-            <el-col :span="24">
-                <el-button style="float:right" type="primary" @click="add">新增计划<i class="el-icon-plus el-icon--right"></i></el-button>
+            <el-col>
+                <el-button style="float:right;margin-bottom: 15px" size="small" type="primary" @click="add">新增计划<i class="el-icon-plus el-icon--right"></i></el-button>
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="24">
+            <el-col>
                 <el-table :data="list" border>
                     <el-table-column label="ID" align="center">
                       <template scope="scope">
@@ -80,20 +86,38 @@
                 </el-table>
             </el-col>
         </el-row>
+        <el-row class="mtop">
+          <el-col>
+            <el-pagination
+              @current-change="planSearch"
+              :current-page.sync="PlanModel.cp"
+              :page-size="PlanModel.ps"
+              layout="total, prev, pager, next"
+              :total="totalItemNum">
+            </el-pagination>
+          </el-col>
+        </el-row>
     </div>
 </template>
 <script>
 import * as PlanCtr from '@/api/plan';
+import BreadCrumb from '@/views/layout/breadcrumb'
 export default{
+    components:{
+       BreadCrumb
+    },
     data(){
         return{
+            dateRange:[],
+            totalItemNum:0,
             PlanModel:{
                 pName:"",
-                runState:0,
+                runState:'',
                 costType:'',
                 sDate:'',
                 eDate:'',
-                dateRange:[],
+                cp:1,
+                ps:15
             },
             pickerOptions:{
                 shortcuts: [{
@@ -146,13 +170,13 @@ export default{
           let end = new Date();
           let start = new Date();
           start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-          this.PlanModel.dateRange=[start,end];
+          this.dateRange=[start,end];
           this.PlanModel.sDate=this.getDateStr(start);
           this.PlanModel.eDate=this.getDateStr(end);
         },
         getDateStr(date){
           let y=date.getFullYear();
-          let m=(date.getMonth()+1)<10?'0'+(date.getMonth+1):(date.getMonth()+1);
+          let m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1);
           let d=date.getDate()<10?'0'+date.getDate():date.getDate();
           return y+'-'+m+'-'+d;
         },
@@ -176,6 +200,9 @@ export default{
           PlanCtr.planList(this.PlanModel).then(res=>{
             let ret=res.data;
             if("A000000"==ret.code){
+                //重置分页数据
+                this.totalItemNum=ret.data.totalItemNum;
+                this.PlanModel.cp=ret.data.currentPageNum;
                 //计算转化率,转化成本
                 for(let item of ret.data.data){
                   //显示处理
@@ -251,12 +278,13 @@ export default{
         margin-left: 10px;
     }
     .highlight{
-      color: green;
+      color: #0b3aa7;
       cursor: pointer;
       width:100%;
       height: 100%;
       display: inline-block;
     }
+    .mtop{
+      margin-top: 20px;
+    }
 </style>
-
-

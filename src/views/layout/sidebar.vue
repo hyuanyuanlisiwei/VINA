@@ -1,8 +1,8 @@
 <template>
     <div>
         <el-menu :router="true" :default-active="activeIndex" class="el-menu-vertical-demo" theme="light">
-            <el-menu-item class="menu-item" :key="route.path" :index="route.path" v-for="route in routes">
-                {{route.name}}
+            <el-menu-item :key="route.path" :index="route.path" v-for="route in routes">
+                {{route.menu}}
             </el-menu-item>
         </el-menu>
     </div>
@@ -30,12 +30,21 @@
     }
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
-    .menu-item{
+    .el-menu{
+       background-color: #48576a;
+       color: #fff;
+       font-weight: 700;
+      .el-menu-item{
         text-align: center;
         font-weight: 700;
+        color:#fff;
+        &:hover{
+          background-color: #006fba;
+        }
+        &.is-active{
+         background-color:#006fba
+        }
+      }
     }
-
-
-
 
 </style>

@@ -84,7 +84,7 @@ export function getNetworks() {
 export function getAreas() {
     return service({
         method:"GET",
-        baseURL:'/static',
+        baseURL:'/',
         url:"area.json"
     });
 }
@@ -124,29 +124,43 @@ export function planGet(params) {
     params:params
   });
 }
-export function entityDelete(params) {
+export function entityDelete(data){
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
-    method:"get",
-    url:"/entity/delete",
-    params:params
-});
-}
-
-export function entitySave(params) {
-  return service({
-    method:"get",
-    url:"/entity/save",
-    params:params
+    method:'get',
+    url:`/entity/delete?token=${token}&type=${type}`,
+    params:data
   });
+  // return service.post(`/entity/delete?token=${token}&type=${type}`,data);
 }
+export function entityGenerate(data) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
+  return service({
+    method:'post',
+    url:`/entity/save?token=${token}&type=${type}`,
+    data:data
+  });
+  // return service.post(`/entity/save?token=${token}&type=${type}`,data);
+}
+export function entitysSave(data){
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
+  return service({
+    method:'post',
+    url:`/entity/save?token=${token}&type=${type}`,
+    data:data
+  });
 
+
+}
 export function planQuotaByDay(params) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
     method:"get",
     params:params,
-    url:"/plan/quotaByDay"
+    url:`/plan/quotaByDay?token=${token}&type=${type}`
   });
 }
-
-
-

@@ -3,29 +3,18 @@
  */
 import Login from '@/views/login/login'
 import Register from '@/views/register/register'
-import UserInfo from '@/views/basic/userInfo'
-import Records from '@/views/basic/records'
 import VueRouter from 'vue-router'
 const initRoutes=[
     {
         path:'/',
         name:'登录',
         component:Login
-    },
-    {
-        path:'/register',
-        name:'注册',
-        component:Register
-    },
-    {
-        path:'/userInfo',
-        component:UserInfo
-    },
-   {
-        path:'/records',
-        component:Records
-   }
-]
+    },{
+      path:'/register',
+      name:'注册',
+      component:Register
+  }
+];
 export default new VueRouter({
     mode:"history",
     routes:initRoutes

@@ -9,7 +9,7 @@
             <el-col :span="4" :offset="16">
                <el-dropdown @command="handleUserCommond">
                  <span class="el-dropdown-link">
-                  欢迎:{{user.realName}}<i class="el-icon-caret-bottom el-icon--right"></i>
+                  <span>欢迎 :<i class=""></i></span><span class="username">{{user.name}}</span><i class="el-icon-caret-bottom el-icon--right"></i>
                  </span>
                  <el-dropdown-menu slot="dropdown">
                    <el-dropdown-item command="userInfo">账号信息</el-dropdown-item>
@@ -40,10 +40,10 @@ export default{
         }
       },
       userInfo(){
-        this.$router.push({path:'/userInfo'});
+        this.$router.push({path:'/index/userInfo'});
       },
       records(){
-        this.$router.push({path:'/records'});
+        this.$router.push({path:'/index/records'});
       },
       logout(){
         this.$store.commit('reset');
@@ -55,14 +55,18 @@ export default{
             user:'getUserInfo'
         })
     }
-
 }
-
 </script>
 <style scoped lang="scss">
 .el-dropdown-link{
   color:#ffffff;
   font-weight: 700;
+}
+.system-title{
+  padding-left: 20px;
+}
+.username{
+  margin-left: 10px;
 }
 
 </style>

@@ -24,21 +24,21 @@ export default{
         BasicInfoForm:'BasicInfoForm',
         InvoiceInfoForm:'InvoiceInfoForm',
         BasicInfoModel:{
-          name:'hyy',
-          password:'123',
-          linkman:'hyylsw',
-          businessLicense:'',
-          address:'北京朝阳',
-          tel:'123123123',
-          email:'2312312'
+          name:'',
+          password:'',
+          linkman:'',
+          businesslicense:'',
+          address:'',
+          tel:'',
+          email:''
         },
         InvoiceInfoModel:{
-          invoiceCompany:'非凡',
-          invoiceTaxpayer:'123123123',
-          invoiceAddress:'光华soho',
-          invoiceTel:'18123213213',
-          invoiceType:'发票类型',
-          invoiceProject:'vina'
+          invoiceCompany:'',
+          invoiceTaxpayer:'',
+          invoiceAddress:'',
+          invoiceTel:'',
+          invoiceType:'',
+          invoiceProject:''
         }
       }
     },
@@ -66,7 +66,6 @@ export default{
       },
       quitRegister(){
          this.$router.push({path:'/'});
-
       }
 
 

@@ -2,7 +2,7 @@
     <section id="tasks">
         <div class="task" v-for="(task,index) in policies" :key="index">
             <el-button type="danger" icon="close" class="btn-remove-task" v-if="index>0" @click="removePolicy(index)" size="small"></el-button>
-            <el-button type="info" icon="plus" class="btn-add-task" @click="addPolicy" size="small"></el-button>
+            <el-button type="primary" icon="plus" class="btn-add-task" @click="addPolicy" size="small"></el-button>
             <el-form-item label="投放日期">
                 <el-date-picker v-model="task.date" type="daterange" placeholder="请选择日期范围"></el-date-picker>
             </el-form-item>
@@ -12,7 +12,6 @@
                       <el-radio :label="0">全时段</el-radio>
                       <el-radio :label="1">指定时段</el-radio>
                     </el-radio-group>
-                    <!--<times v-show="task.timeFlag==1" :taskIndex="index" :times="task.times" v-on:changeTimes="changeTimes" v-on:cheangeTimes="changeTimes"></times>-->
                     <div v-show="task.timeFlag==1">
                       <section class="times">
                         <div class="time" v-for="(time,index2) in task.times" :key="index2">
@@ -99,7 +98,6 @@
             padding: 20px;
             padding-top: 38px;
             margin-bottom: 20px;
-            background-color: #f5f5f5;
             border: 2px dashed #1AB394;
             border-radius: 4px;
             position: relative;

@@ -1,5 +1,6 @@
 <template>
     <div>
+      <bread-crumb :breadcrumbs="[{to:'',name:'创意报表'}]"></bread-crumb>
       <el-row>
         <el-col :span="24">
           <el-form :inline="true" :model="QuotaByDayModel" class="demo-form-inline">
@@ -7,7 +8,7 @@
               <el-date-picker
                 @change="changeDateRange"
                 format="yyyy-MM-dd"
-                v-model="QuotaByDayModel.dateRange"
+                v-model="dateRange"
                 type="daterange"
                 range-separator="-"
                 align="right"
@@ -34,19 +35,23 @@
           </el-table>
         </el-col>
       </el-row>
-
     </div>
 </template>
 <script>
 import * as EntityCtr from '@/api/entity'
+import BreadCrumb from '@/views/layout/breadcrumb'
+
 export default{
+    components:{
+      BreadCrumb
+    },
     data(){
         return {
+          dateRange:[],
           QuotaByDayModel:{
             id:'',
             sDate:'',
-            eDate:'',
-            dateRange:''
+            eDate:''
           },
           list:[],
           pickerOptions:{
@@ -88,12 +93,27 @@ export default{
     },
     mounted(){
       this.QuotaByDayModel.id=this.$route.query.id;
+      this.initQuotaByDayModel();
       this.entityQuotaByDay();
     },
     methods:{
+      initQuotaByDayModel(){
+        let end = new Date();
+        let start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+        this.dateRange=[start,end];
+        this.QuotaByDayModel.sDate=this.getDateStr(start);
+        this.QuotaByDayModel.eDate=this.getDateStr(end);
+      },
+      getDateStr(date){
+        let y=date.getFullYear();
+        let m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth())+1;
+        let d=date.getDate()<10?'0'+date.getDate():date.getDate();
+        return y+'-'+m+'-'+d;
+      },
       changeDateRange(dateRange){
         this.QuotaByDayModel.sDate=dateRange.substr(0,10);
-        this.QuotaByDayModel.eDate=dateRange.substr(13);
+        this.QuotaByDayModel.eDate=dateRange.substr(11);
       },
       entityQuotaByDay(){
         let params=Object.assign({},this.QuotaByDayModel);
@@ -103,8 +123,14 @@ export default{
             if('A000000'==ret['code']){
               //计算转化率,转化成本
               for(let item of ret.data){
-                item['rate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
-                item['benefit']=((item['cost']/item['active'])*100).toFixed(2)+'%';
+                item['rate']='';
+                item['benefit']='';
+                if(item['clk'] && item['imp']){
+                  item['rate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
+                }
+                if(item['cost'] && item['active']){
+                  item['benefit']=((item['cost']/item['active'])*100).toFixed(2)+'%';
+                }
               }
               this.list=ret.data;
             }

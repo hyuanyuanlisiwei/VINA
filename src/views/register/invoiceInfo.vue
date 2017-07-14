@@ -8,7 +8,7 @@
               <el-input v-model="InvoiceInfo.invoiceCompany"  :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="纳税人识别号" prop="invoiceTaxpayer">
-              <el-input v-model="InvoiceInfo.invoiceTaxpayer" type="number"  :disabled="isDisabled"></el-input>
+              <el-input v-model="InvoiceInfo.invoiceTaxpayer" :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="开票公司地址" prop="invoiceAddress">
               <el-input v-model="InvoiceInfo.invoiceAddress"  :disabled="isDisabled"></el-input>
@@ -20,7 +20,7 @@
               <el-input v-model="InvoiceInfo.invoiceType"  :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="发票项目" prop="invoiceProject">
-              <el-input v-model="InvoiceInfo.invoiceProject" type="email"  :disabled="isDisabled"></el-input>
+              <el-input v-model="InvoiceInfo.invoiceProject"  :disabled="isDisabled"></el-input>
             </el-form-item>
           </el-form>
         </el-col>

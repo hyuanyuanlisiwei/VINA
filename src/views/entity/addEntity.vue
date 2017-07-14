@@ -1,13 +1,14 @@
 <template>
     <div>
       <el-row>
-        <el-col :span="24" :offset="4">
-          <el-form :model="CreateAdModel" label-width="150px" class="mbottom">
-            <el-form-item label="图片素材">
+        <el-col :span="16" :offset="4">
+          <el-form :model="CreateAdModel" label-width="150px" >
+            <el-form-item label="图片素材" class="mbottom">
               <el-upload
-                action="/upload/upload"
+                :action="uploadURL"
                 auto-upload
                 drag
+                name="myFile"
                 :data="{type:1}"
                 list-type="picture-card"
                 :before-upload="beforePicUpload"
@@ -20,54 +21,55 @@
                 <img width="100%" :src="picDialogUrl">
               </el-dialog>
             </el-form-item>
-            <el-form-item label="视频素材" class="mtop">
+            <el-form-item label="视频素材" class="mbottom">
               <el-upload
-                action="/upload/upload"
+                class="upload-demo"
+                :action="uploadURL"
                 auto-upload
                 drag
+                name="myFile"
                 :data="{type:5}"
-                list-type="picture-card"
                 :before-upload="beforeVideoUpload"
                 :on-preview="handlePreviewVideo"
                 :on-success="videoUploadSuccess"
                 :on-remove="handleRemoveVideo">
-                <i class="el-icon-plus"></i>
+                <el-button type="primary">上传视频素材</el-button>
               </el-upload>
               <el-dialog v-model="videoDialogVisible">
-                <img width="100%" :src="videoDialogUrl">
+                <video width="100%" :src="videoDialogUrl" controls="controls"></video>
               </el-dialog>
             </el-form-item>
-            <el-form-item label="广告类型" class="mtop">
+            <el-form-item label="广告类型" class="mbottom">
               <el-checkbox-group v-model="CreateAdModel.entityTypes">
                 <el-checkbox :label="36">图片</el-checkbox>
                 <el-checkbox :label="53">贴片</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="entitySave">生成创意</el-button>
+              <el-button type="primary" @click="entityGenerate">生成创意</el-button>
             </el-form-item>
           </el-form>
         </el-col>
-        <el-col :span="22" :offset="1">
+        <el-col :span="16" :offset="1">
           <h1>创意列表</h1>
           <el-table
             :data="entityList" border>
-            <el-table-column prop="id" label="ID"></el-table-column>
-            <el-table-column prop="entityName" label="创意名称"></el-table-column>
-            <el-table-column label="操作">
+            <el-table-column prop="id" label="ID" align="center"></el-table-column>
+            <el-table-column prop="entityName" label="创意名称" align="center"></el-table-column>
+            <el-table-column label="操作" align="center">
               <template scope="scope">
-                <el-button :plain="true" type="success" @click="entityPreview(scope.row)" icon="picture"></el-button>
-                <el-button :plain="true" type="danger" @click="entityRemove(scope.row,scope.$index)" icon="close"></el-button>
+                <i class="el-icon-picture" @click="entityPreview(scope.row)"></i>
+                <i class="el-icon-close" @click="entityRemove(scope.row)"></i>
               </template>
             </el-table-column>
           </el-table>
           <!--预览创意 -->
-          <el-dialog title="预览创意" :visible="entityPreviewFlag">
-            <img :src="entityPrevUrl">
+          <el-dialog title="预览创意" v-model="entityPreviewFlag">
+            <video width="100%" :src="videoUrl" controls="controls" v-show="videoUrl"></video>
+            <img width="100%" :src="picUrl"/>
           </el-dialog>
         </el-col>
       </el-row>
-
     </div>
 </template>
 <script>
@@ -75,6 +77,8 @@ import * as PlanCtr from '@/api/plan'
 export default{
     data(){
         return {
+//          uploadURL:'http://192.168.0.254:8080/upload/uploadFile',
+          uploadURL:'/upload/uploadFile',
           CreateAdModel:{
             uId:'',
             picUrls:[],
@@ -83,9 +87,12 @@ export default{
           },
           entityList:[],
           entityPreviewFlag:false,
-          entityPrevUrl:'',
+          videoUrl:'',
+          picUrl:'',
           picDialogVisible:false,
-          picDialogUrl:''
+          picDialogUrl:'',
+          videoDialogVisible:false,
+          videoDialogUrl:'',
         }
     },
     mounted(){
@@ -93,7 +100,13 @@ export default{
     methods:{
       entityPreview(row){
         this.entityPreviewFlag=true;
-        this.entityPrevUrl=row.entityUrl;
+        if(row.entityType==53){
+          this.videoUrl=row.entityUrl;
+          this.picUrl=row.threadPic1;
+        }else{
+          this.picUrl=row.entityUrl;
+          this.videoUrl='';
+        }
       },
       entityRemove(row,index){
         let params={id:row.id};
@@ -114,16 +127,19 @@ export default{
       beforePicUpload(file){
 
       },
+
       handlePreviewPic(file){
         this.picDialogUrl=file.url;
         this.picDialogVisible=true;
+      },
+      handlePreviewVideo(file){
+        this.videoDialogUrl=file.response.data.url;
+        this.videoDialogVisible=true;
       },
       picUploadSuccess(response,file,fileList){
         this.CreateAdModel.picUrls.push(response.data.url);
       },
       handleRemovePic(file,fileList){
-        console.log('-------remove---------');
-        console.log(file);
         let index=this.CreateAdModel.picUrls.indexOf(file.url);
         this.CreateAdModel.picUrls.splice(index,1);
       },
@@ -134,42 +150,32 @@ export default{
         }
         return !flag;
       },
-      handlePreviewVideo(file){
-        this.videoDialogUrl=file.url;
-        this.videoDialogVisible=true;
-      },
       videoUploadSuccess(response,file,fileList){
         this.CreateAdModel.videoUrls.push(response.data.url);
       },
       handleRemoveVideo(file,fileList){
-        console.log('-------remove---------');
-        console.log(file);
         let index=this.CreateAdModel.videoUrls.indexOf(file.url);
         this.CreateAdModel.videoUrls.splice(index,1);
       },
-      entitySave(){
-        this.CreateAdModel[uId]=this.$store.getters.getPlanId;
+      entityGenerate(){
+        this.CreateAdModel['uId']=this.$store.getters.getPlanId;
         let params=Object.assign({},this.CreateAdModel);
-        params["vedioUrls"]=params["vedioUrls"].join(',');
+        params["videoUrls"]=params["videoUrls"].join(',');
         params["picUrls"]=params["picUrls"].join(',');
         params["entityTypes"]=params["entityTypes"].join(',');
-        PlanCtr.entitySave(params).then(res=>{
+        PlanCtr.entityGenerate(params).then(res=>{
           let ret=res['data'];
           if('A000000'==ret['code']){
               this.entityList=ret['data'];
           }
         }).catch(err=>{});
-      },
-
+      }
     }
-
-
 }
 
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
   .mbottom{
-    margin-bottom: 30px;
+    margin-bottom: 50px;
   }
-
 </style>

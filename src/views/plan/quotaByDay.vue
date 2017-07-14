@@ -1,5 +1,6 @@
 <template>
     <div>
+      <bread-crumb :breadcrumbs="[{to:'/plan',name:'计划管理'},{to:'',name:'计划报表'}]"></bread-crumb>
       <el-row>
         <el-col :span="24">
           <el-form :inline="true" :model="QuotaByDayModel" class="demo-form-inline">
@@ -7,7 +8,7 @@
               <el-date-picker
                 @change="changeDateRange"
                 format="yyyy-MM-dd"
-                v-model="QuotaByDayModel.dateRange"
+                v-model="dateRange"
                 type="daterange"
                 range-separator="-"
                 align="right"
@@ -35,17 +36,9 @@
             <el-table-column prop="cost" label="当日花费"></el-table-column>
             <el-table-column prop="imp" label="曝光数"></el-table-column>
             <el-table-column prop="clk" label="点击数"></el-table-column>
-            <el-table-column label="点击率">
-              <template scope="scope">
-                {{scope.row.clkRate | formatRate}}
-              </template>
-            </el-table-column>
+            <el-table-column prop="clkRate" label="点击率"></el-table-column>
             <el-table-column prop="active" label="激活数"></el-table-column>
-            <el-table-column prop="rate" label="转化率" align="center">
-              <template scope="scope">
-                {{scope.row.rate | formatRate}}
-              </template>
-            </el-table-column>
+            <el-table-column prop="rate" label="转化率" align="center"></el-table-column>
             <el-table-column prop="benefit" label="转化成本" align="center"></el-table-column>
           </el-table>
         </el-col>
@@ -55,14 +48,20 @@
 <script>
 import echarts from 'echarts'
 import * as PlanCtr from '@/api/plan'
+import BreadCrumb from '@/views/layout/breadcrumb'
 export default{
+    components:{
+        BreadCrumb
+    },
     data(){
         return {
+          dateRange:[],
           QuotaByDayModel:{
             id:'',
             sDate:'',
             eDate:'',
-            dateRange:''
+            cp:1,
+            ps:15
           },
           list:[],
           daysList:[],
@@ -131,9 +130,18 @@ export default{
             if('A000000'==ret['code']){
               //计算转化率,转化成本
               for(let item of ret.data){
-                item['rate']=((item['active']/item['clk'])*100).toFixed(2);
-                item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2);
-                item['benefit']=+(item['cost']/item['active']).toFixed(2);
+                item['rate']='';
+                item['clkRate']='';
+                item['benefit']='';
+                if(item['clk'] && item['active']){
+                  item['rate']=((item['active']/item['clk'])*100).toFixed(2)+'%';
+                }
+                if(item['imp'] && item['clk']){
+                  item['clkRate']=((item['clk']/item['imp'])*100).toFixed(2)+'%';
+                }
+                if(item['active'] && item['cost']){
+                  item['benefit']=(item['cost']/item['active']).toFixed(2)+'%';
+                }
               }
               this.list=ret.data;
               //重绘折线图

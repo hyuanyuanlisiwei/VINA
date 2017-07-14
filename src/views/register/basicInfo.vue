@@ -14,9 +14,9 @@
               <el-input v-model="BasicInfo.linkman"  :disabled="isDisabled"></el-input>
             </el-form-item>
             <el-form-item label="营业执照" prop="businessLicense">
-              <img :src="BasicInfo.businessLicense" class="img-rounded"/>
-              <el-upload class="upload-demo" action="http://192.168.0.183:8080/upload/uploadFile" :data="{type:1}" name="myFile"  :on-success="uploadSuccess" ><el-button type="primary" icon="upload">上传图片</el-button></el-upload>
-              <el-input v-model="BasicInfo.businessLicense" style="display:none"></el-input>
+              <img :src="BasicInfo.businesslicense" class="img-rounded"/>
+              <el-upload class="upload-demo" :action="uploadURL" :data="{type:1}" name="myFile"  :on-success="uploadSuccess" ><el-button type="primary" icon="upload">上传图片</el-button></el-upload>
+              <el-input v-model="BasicInfo.businesslicense" style="display:none"></el-input>
             </el-form-item>
             <el-form-item label="公司地址" prop="address">
               <el-input v-model="BasicInfo.address"  :disabled="isDisabled"></el-input>
@@ -49,7 +49,8 @@ export default{
     },
     data(){
         return {
-
+//          uploadURL:'http://192.168.0.110:8080/upload/uploadFile'
+          uploadURL:'/upload/uploadFile'
         }
     },
     mounted(){
@@ -58,17 +59,10 @@ export default{
     methods:{
       uploadSuccess : function(response, file, fileList) {
         console.log(response);
-        this.BasicInfo.businessLicense = response.data.url;
-      },
-
-
+        this.BasicInfo.businesslicense = response.data.url;
+      }
     }
-
-
-
-
 }
-
 </script>
 <style scoped lang="scss" ref="stylesheet/scss">
 
