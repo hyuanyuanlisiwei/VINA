@@ -3,6 +3,7 @@
  */
 import Login from '@/views/login/login'
 import Register from '@/views/register/register'
+import NotFound from '@/views/error/error404'
 import VueRouter from 'vue-router'
 const initRoutes=[
     {
@@ -13,10 +14,13 @@ const initRoutes=[
       path:'/register',
       name:'注册',
       component:Register
+  },{
+      path:'*',
+      component:NotFound
   }
 ];
 export default new VueRouter({
-    mode:"history",
+    mode:'history',
     routes:initRoutes
 })
 

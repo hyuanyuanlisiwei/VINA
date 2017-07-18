@@ -6,8 +6,9 @@
             <el-form :model="EntityModel" :inline="true">
               <el-form-item label="创意类型">
                 <el-select v-model="EntityModel.entityType" placeholder="请选择创意类型">
+                  <el-option value="" label="全部"></el-option>
                   <el-option  :value="36" label="图片"></el-option>
-                  <el-option  :value="53" :label="贴片"></el-option>
+                  <el-option  :value="53" label="贴片"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="投放状态">
@@ -84,8 +85,11 @@
         </el-row>
         <!--创意预览-->
       <el-dialog v-model="entityDialogVisible">
-        <img width="100%" :src="entityUrl">
-        <video :scr="threadPic1"></video>
+        <img width="100%" :src="imgUrl" v-show="imgUrl">
+        <video width="100%" controls="controls" autoplay v-show="videoUrl">
+          <source :src="videoUrl" type="video/mp4"></source>
+          <source :src="videoUrl" type="video/flv"></source>
+        </video>
       </el-dialog>
     </div>
 </template>
@@ -115,8 +119,8 @@ export default{
         list:[],
         //预览
         entityDialogVisible:false,
-        entityUrl:'',
-        threadPic1:'',
+        imgUrl:'',
+        videoUrl:'',
         pickerOptions:{
           shortcuts: [{
             text: '昨天',
@@ -253,10 +257,16 @@ export default{
           let params={id:row.id};
           EntityCtr.entityPreview(params)
             .then(res=>{
+              this.videoUrl='';
+              this.imgUrl='';
               let ret=res['data'];
               if('A000000'==ret['code']){
-                  this.entityUrl=ret['data']['entityUrl'];
-                  this.threadPic1=ret['data']['threadPic1'];
+                  if(ret['data']['entityType']==36){
+                      this.imgUrl=ret['data']['entityUrl'];
+                  }else if(ret['data']['entityType']==53){
+                      this.videoUrl=ret['data']['entityUrl'];
+                  }
+                  // http://f2time4test.oss-cn-beijing.aliyuncs.com/video/20170712/neibuppbox140523padqiantie15s.mp4
                   this.entityDialogVisible=true;
               }
             }).catch(error=>{});

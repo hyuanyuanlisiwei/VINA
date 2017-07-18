@@ -29,9 +29,11 @@ export function entityUpdate(params) {
   });
 }
 export function entityPreview(params) {
+  let token=window.localStorage.getItem('token');
+  let type=window.localStorage.getItem('type');
   return service({
     method:"get",
-    url:"/entity/get",
+    url:`/entity/get?token=${token}&type=${type}`,
     params:params
   });
 }

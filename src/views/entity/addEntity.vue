@@ -16,6 +16,7 @@
                 :on-success="picUploadSuccess"
                 :on-remove="handleRemovePic">
                 <i class="el-icon-plus"></i>
+                <div slot="tip" class="el-upload__tip" style="margin-top: 44px">只能上传的文件的大小:(500px_600px, 600px_500px, 960px_640px, 640px_960px, 1280px_720px)</div>
               </el-upload>
               <el-dialog v-model="picDialogVisible">
                 <img width="100%" :src="picDialogUrl">
@@ -34,9 +35,13 @@
                 :on-success="videoUploadSuccess"
                 :on-remove="handleRemoveVideo">
                 <el-button type="primary">上传视频素材</el-button>
+                <div slot="tip" class="el-upload__tip" style="margin-top: 44px">视频大小不能超过10M</div>
               </el-upload>
               <el-dialog v-model="videoDialogVisible">
-                <video width="100%" :src="videoDialogUrl" controls="controls"></video>
+                <video width="100%" controls="controls" autoplay v-show="videoDialogUrl">
+                  <source :src="videoDialogUrl" type="video/mp4"></source>
+                  <source :src="videoDialogUrl" type="video/flv"></source>
+                </video>
               </el-dialog>
             </el-form-item>
             <el-form-item label="广告类型" class="mbottom">
@@ -65,8 +70,11 @@
           </el-table>
           <!--预览创意 -->
           <el-dialog title="预览创意" v-model="entityPreviewFlag">
-            <video width="100%" :src="videoUrl" controls="controls" v-show="videoUrl"></video>
-            <img width="100%" :src="picUrl"/>
+            <video width="100%" :src="videoUrl" controls="controls" autoplay v-show="videoUrl">
+              <source :src="videoUrl" type="video/mp4"></source>
+              <source :src="videoUrl" type="video/flv"></source>
+            </video>
+            <img width="100%" :src="picUrl" v-show="picUrl"/>
           </el-dialog>
         </el-col>
       </el-row>
@@ -77,7 +85,6 @@ import * as PlanCtr from '@/api/plan'
 export default{
     data(){
         return {
-//          uploadURL:'http://192.168.0.254:8080/upload/uploadFile',
           uploadURL:'/upload/uploadFile',
           CreateAdModel:{
             uId:'',
@@ -127,7 +134,6 @@ export default{
       beforePicUpload(file){
 
       },
-
       handlePreviewPic(file){
         this.picDialogUrl=file.url;
         this.picDialogVisible=true;
@@ -137,7 +143,11 @@ export default{
         this.videoDialogVisible=true;
       },
       picUploadSuccess(response,file,fileList){
-        this.CreateAdModel.picUrls.push(response.data.url);
+        if(response.data.url){
+          this.CreateAdModel.picUrls.push(response.data.url);
+        }else{
+            this.$message.error(response.message);
+        }
       },
       handleRemovePic(file,fileList){
         let index=this.CreateAdModel.picUrls.indexOf(file.url);
@@ -151,7 +161,11 @@ export default{
         return !flag;
       },
       videoUploadSuccess(response,file,fileList){
-        this.CreateAdModel.videoUrls.push(response.data.url);
+        if(response.data.url){
+          this.CreateAdModel.videoUrls.push(response.data.url);
+        }else{
+            this.$message.error(response.message);
+        }
       },
       handleRemoveVideo(file,fileList){
         let index=this.CreateAdModel.videoUrls.indexOf(file.url);

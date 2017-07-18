@@ -278,7 +278,7 @@ export default{
     },
     mounted(){
         this.id=this.$route.query.id;
-        this.isCPA=this.$store.getters.getUserInfo.isCPA
+        this.isCPA=this.$store.getters.getUserInfo.isCPA;
         if(this.editState){
             this.planGet();
         }
